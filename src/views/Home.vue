@@ -1,31 +1,57 @@
 <template>
   <div masonry-gird class="grid">
-    <div class="grid-item" :class="`grid-item${index + 1 > 3 ? index - 2 : index + 1}`" v-for="(listOne, index) in list" :key="index">
+    <div
+      class="grid-item"
+      :class="`grid-item${listOne.img.length > 2 ? listOne.img.length - 2 : listOne.img.length + 1}`"
+      v-for="(listOne, index) in list"
+      :key="index"
+    >
       <div class="label">
         <span class="kind" :class="`kind${listOne.num}`">{{ listOne.kind }}</span>
         <span class="date">{{ listOne.date }}</span>
       </div>
-      <h3>{{ listOne.title }}</h3>
+      <h3 @click="intoBlog(listOne)">{{ listOne.title }}</h3>
       <div :class="`img${listOne.img.length}`">
         <img :src="imgOne" alt="" v-for="(imgOne, index) in listOne.img" :key="index" />
+      </div>
+    </div>
+    <div class="cover" v-if="block">
+      <div class="blog">
+        <div class="closeBlog" @click="block = !block">
+          <i class="iconfont icon-guanbi"></i>
+        </div>
+        <Blog :id="key" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-// import axios from 'axios'
+import pubsub from 'pubsub-js'
 import Masonry from 'masonry-layout'
-import reqGetInfo from '@/api/index'
+import { reqGetInfo } from '@/api/index'
+import Blog from '@/components/Blog.vue'
 
 export default {
   name: 'Home',
+  components: {
+    Blog,
+  },
   data() {
     return {
       list: [],
+      id: 0,
+      block: false,
+      key: 0,
     }
   },
   mounted() {
+    this.category = pubsub.subscribe('category', (name, id) => {
+      this.id = id
+    })
+    this.clickAuthor = pubsub.subscribe('clickAuthor', () => {
+      this.block = false
+    })
     this.getData()
   },
   updated() {
@@ -34,21 +60,29 @@ export default {
     })
   },
   methods: {
-    // getData() {
-    //   axios
-    //     .get('http://127.0.0.1:8000/list-server')
-    //     .then((response) => {
-    //       this.list = response.data
-    //     })
-    //     .catch(function e1(error) {
-    //       // 请求失败处理
-    //       console.log(error)
-    //     })
-    // },
     async getData() {
-      const list = await reqGetInfo()
+      const list = await reqGetInfo(this.id)
       this.list = list
     },
+    intoBlog(listOne) {
+      this.key = listOne.key
+      this.block = true
+    },
+  },
+  watch: {
+    id() {
+      this.getData()
+    },
+    block() {
+      if (this.block) {
+        document.querySelector('html')?.classList.add('modal-page')
+      } else {
+        document.querySelector('html')?.classList.remove('modal-page')
+      }
+    },
+  },
+  beforeDestroy() {
+    pubsub.unsubscribe(this.category)
   },
 }
 </script>
@@ -65,6 +99,34 @@ img {
   &:hover {
     transform: scale(1.03);
   }
+}
+
+.cover {
+  position: fixed;
+  z-index: 9999;
+  background-color: #3a3a3a38;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  .blog {
+    background-color: white;
+    margin: 105px;
+    width: 80%;
+    height: 100%;
+    border-radius: 8px;
+    .closeBlog {
+      float: right;
+      margin: 30px;
+      cursor: pointer;
+      .icon-guanbi {
+        font-size: 30px;
+      }
+    }
+  }
+}
+h3 {
+  cursor: pointer;
 }
 .grid-item {
   background-color: white;

@@ -16,18 +16,6 @@ const routes = [
     path: '/twoRow',
     component: () => import('@/views/twoRow.vue'),
   },
-  {
-    path: '/food',
-    component: () => import('@/views/category/food.vue'),
-  },
-  {
-    path: '/tourism',
-    component: () => import('@/views/category/tourism.vue'),
-  },
-  {
-    path: '/mood',
-    component: () => import('@/views/category/mood.vue'),
-  },
 ]
 
 const router = new VueRouter({

@@ -7,13 +7,13 @@
     </div>
     <transition name="appear">
       <div v-show="active" class="more">
-        <p @click="$router.push('/home')">首页</p>
+        <p @click="goHome">首页</p>
         <div class="category" @mouseenter="MouseEnter($event)" @mouseleave="MouseLeave($event)">
           <p>分类</p>
           <div class="categoryList" :class="{ shortTop: noMargin == true }">
-            <div @click="$router.push('/mood')">心情随笔</div>
-            <div @click="$router.push('/tourism')">旅游日记</div>
-            <div @click="$router.push('/food')">美食分享</div>
+            <div @click="category(1)">心情随笔</div>
+            <div @click="category(2)">旅游日记</div>
+            <div @click="category(3)">美食分享</div>
           </div>
         </div>
         <p @click="$router.push('/twoRow')">双栏板式</p>
@@ -29,7 +29,6 @@
   </div>
 </template>
 <script>
-// import 'animate.css'
 import pubsub from 'pubsub-js'
 
 export default {
@@ -57,6 +56,13 @@ export default {
           console.log('style找不到了')
         }
       }, 2000)
+    },
+    category(id) {
+      pubsub.publish('category', id)
+    },
+    goHome() {
+      this.$router.push('/home')
+      this.category(0)
     },
   },
   mounted() {

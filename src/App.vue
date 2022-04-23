@@ -43,4 +43,7 @@ export default {
 body {
   background-color: #f1f1f1;
 }
+.modal-page {
+  overflow: hidden;
+}
 </style>
