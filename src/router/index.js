@@ -7,6 +7,9 @@ const routes = [
   {
     path: '/home',
     component: () => import('@/views/Home.vue'),
+    meta: {
+      keepAlive: true,
+    },
   },
   {
     path: '*',
@@ -15,6 +18,9 @@ const routes = [
   {
     path: '/twoRow',
     component: () => import('@/views/twoRow.vue'),
+    meta: {
+      keepAlive: false,
+    },
   },
 ]
 

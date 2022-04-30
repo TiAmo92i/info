@@ -17,9 +17,6 @@
     </div>
     <div class="cover" v-if="block">
       <div class="blog">
-        <div class="closeBlog" @click="block = !block">
-          <i class="iconfont icon-guanbi"></i>
-        </div>
         <Blog :id="key" />
       </div>
     </div>
@@ -29,7 +26,7 @@
 <script>
 import pubsub from 'pubsub-js'
 import Masonry from 'masonry-layout'
-import { reqGetInfo } from '@/api/index'
+import { mapState } from 'vuex'
 import Blog from '@/components/Blog.vue'
 
 export default {
@@ -39,7 +36,6 @@ export default {
   },
   data() {
     return {
-      list: [],
       id: 0,
       block: false,
       key: 0,
@@ -60,9 +56,8 @@ export default {
     })
   },
   methods: {
-    async getData() {
-      const list = await reqGetInfo(this.id)
-      this.list = list
+    getData() {
+      this.$store.dispatch('getList', this.id)
     },
     intoBlog(listOne) {
       this.key = listOne.key
@@ -73,13 +68,16 @@ export default {
     id() {
       this.getData()
     },
-    block() {
-      if (this.block) {
+    block(newValue) {
+      if (newValue) {
         document.querySelector('html')?.classList.add('modal-page')
       } else {
         document.querySelector('html')?.classList.remove('modal-page')
       }
     },
+  },
+  computed: {
+    ...mapState(['list']),
   },
   beforeDestroy() {
     pubsub.unsubscribe(this.category)
@@ -100,31 +98,6 @@ img {
     transform: scale(1.03);
   }
 }
-
-.cover {
-  position: fixed;
-  z-index: 9999;
-  background-color: #3a3a3a38;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  .blog {
-    background-color: white;
-    margin: 105px;
-    width: 80%;
-    height: 100%;
-    border-radius: 8px;
-    .closeBlog {
-      float: right;
-      margin: 30px;
-      cursor: pointer;
-      .icon-guanbi {
-        font-size: 30px;
-      }
-    }
-  }
-}
 h3 {
   cursor: pointer;
 }
@@ -141,19 +114,6 @@ h3 {
   .label {
     height: 20px;
     line-height: 1.5;
-    .kind {
-      display: inline-block;
-      border-radius: 3px;
-      vertical-align: middle;
-      padding: 0 10px;
-      margin-right: 20px;
-      color: white;
-      font-size: 0.8em;
-    }
-    .date {
-      font-size: 0.8em;
-      color: #666;
-    }
   }
 }
 .grid-item1 {
@@ -210,17 +170,6 @@ h3 {
     width: 100%;
     height: 180px;
     padding-bottom: 5px;
-  }
-}
-.label {
-  .kind {
-    background-color: #a9caa8;
-  }
-  .kind2 {
-    background-color: #fbc21f;
-  }
-  .kind3 {
-    background-color: #7063e4;
   }
 }
 </style>

@@ -1,8 +1,11 @@
 <template>
   <div class="blog">
+    <div class="closeBlog" @click="clickAuthor">
+      <i class="iconfont icon-guanbi"></i>
+    </div>
     <h1 class="title">{{ blog && blog.title }}</h1>
     <h5 class="authorAndDate">
-      <span @click="clickAuthor">TiAmo</span>
+      <span @click="clickAuthor">{{ blog && blog.author }}</span>
       {{ blog && blog.date }}
     </h5>
     <div class="content">
@@ -34,7 +37,6 @@ export default {
       this.blogArray = blog
     },
     clickAuthor() {
-      this.$router.push('/home')
       pubsub.publish('clickAuthor')
     },
   },
@@ -48,7 +50,14 @@ export default {
 
 <style scoped lang="less">
 .blog {
-  height: 1500px;
+  .closeBlog {
+    float: right;
+    margin: 30px;
+    cursor: pointer;
+    .icon-guanbi {
+      font-size: 30px;
+    }
+  }
   .title {
     color: #313131;
     padding-top: 50px;
@@ -65,6 +74,14 @@ export default {
     padding-bottom: 10px;
     color: #666;
     list-style: none;
+  }
+  .img {
+    width: 100%;
+    img {
+      padding: 20px;
+      height: 80%;
+      width: 80%;
+    }
   }
 }
 </style>

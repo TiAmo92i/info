@@ -1,22 +1,22 @@
 <template>
   <div class="header" :class="{ cur: active == true, fix: noMargin == true }">
-    <img src="../assets/info.jpg" alt="" />
+    <img src="../assets/info.jpg" alt="" @click="goCategory(0)" />
     <div class="text">
       <h2>TiAmo</h2>
       <h4>TiAmo的个人小站</h4>
     </div>
     <transition name="appear">
       <div v-show="active" class="more">
-        <p @click="goHome">首页</p>
+        <p @click="goCategory(0)">首页</p>
         <div class="category" @mouseenter="MouseEnter($event)" @mouseleave="MouseLeave($event)">
           <p>分类</p>
           <div class="categoryList" :class="{ shortTop: noMargin == true }">
-            <div @click="category(1)">心情随笔</div>
-            <div @click="category(2)">旅游日记</div>
-            <div @click="category(3)">美食分享</div>
+            <div @click="goCategory(1)">心情随笔</div>
+            <div @click="goCategory(2)">旅游日记</div>
+            <div @click="goCategory(3)">美食分享</div>
           </div>
         </div>
-        <p @click="$router.push('/twoRow')">双栏板式</p>
+        <p @click="goTwoRow">双栏板式</p>
         <p>更多</p>
         <p><i class="iconfont icon-sousuo1"></i></p>
       </div>
@@ -60,9 +60,16 @@ export default {
     category(id) {
       pubsub.publish('category', id)
     },
-    goHome() {
-      this.$router.push('/home')
-      this.category(0)
+    goCategory(id) {
+      if (this.$route.path !== '/home') {
+        this.$router.push('/home')
+      }
+      this.category(id)
+    },
+    goTwoRow() {
+      if (this.$route.path !== '/twoRow') {
+        this.$router.push('/twoRow')
+      }
     },
   },
   mounted() {
@@ -82,6 +89,9 @@ export default {
 }
 </script>
 <style scoped lang="less">
+img {
+  cursor: pointer;
+}
 .header {
   transition: width 0.3s linear;
   color: #666;
