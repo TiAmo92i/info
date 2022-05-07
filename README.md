@@ -1,5 +1,8 @@
 # info
 
+## 个人博客
+
+## 网址：http://152.136.123.63:8000/
 ## Project setup
 ```
 npm install
@@ -13,11 +16,6 @@ npm run serve
 ### Compiles and minifies for production
 ```
 npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
 ```
 
 ### Customize configuration
