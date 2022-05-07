@@ -1,5 +1,6 @@
 <template>
   <div class="blog">
+    <!-- <el-skeleton :rows="6" animated class="jiazai" /> -->
     <div class="closeBlog" @click="clickAuthor">
       <i class="iconfont icon-guanbi"></i>
     </div>
@@ -14,11 +15,13 @@
     <div class="img">
       <img :src="img" alt="" v-for="(img, index) in blog && blog.img" :key="index" />
     </div>
+    <comments :id="id" />
   </div>
 </template>
 <script>
 import pubsub from 'pubsub-js'
 import { reqGetBlog } from '@/api/index'
+import comments from './comments.vue'
 
 export default {
   name: 'Blog',
@@ -27,6 +30,9 @@ export default {
     return {
       blogArray: [],
     }
+  },
+  components: {
+    comments,
   },
   mounted() {
     this.getData()
@@ -52,7 +58,7 @@ export default {
 .blog {
   .closeBlog {
     float: right;
-    margin: 30px;
+    margin: 30px 0 0 0;
     cursor: pointer;
     .icon-guanbi {
       font-size: 30px;

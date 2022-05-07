@@ -22,10 +22,16 @@ const routes = [
       keepAlive: false,
     },
   },
+  {
+    path: '/login',
+    component: () => import('@/views/login.vue'),
+    meta: {
+      keepAlive: false,
+    },
+  },
 ]
 
 const router = new VueRouter({
-  mode: 'history',
   base: process.env.BASE_URL,
   routes,
 })

@@ -17,7 +17,7 @@
           </div>
         </div>
         <p @click="goTwoRow">双栏板式</p>
-        <p>更多</p>
+        <p @click="goLogin">登录</p>
         <p><i class="iconfont icon-sousuo1"></i></p>
       </div>
     </transition>
@@ -26,6 +26,7 @@
       <li></li>
       <li></li>
     </ul>
+    <el-alert title="style找不到了" type="error" v-if="error"> </el-alert>
   </div>
 </template>
 <script>
@@ -39,6 +40,7 @@ export default {
       noMargin: false,
       timer: null,
       delayActive: false,
+      error: false,
     }
   },
   methods: {
@@ -53,7 +55,7 @@ export default {
         if (e.target.childNodes[1]) {
           e.target.childNodes[1].style.display = 'none'
         } else {
-          console.log('style找不到了')
+          this.error = true
         }
       }, 2000)
     },
@@ -69,6 +71,11 @@ export default {
     goTwoRow() {
       if (this.$route.path !== '/twoRow') {
         this.$router.push('/twoRow')
+      }
+    },
+    goLogin() {
+      if (this.$route.path !== '/login') {
+        this.$router.push('/login')
       }
     },
   },

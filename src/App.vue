@@ -27,6 +27,11 @@ export default {
   mounted() {
     window.addEventListener('scroll', this.handleScroll, true) // 监听（绑定）滚轮滚动事件
   },
+  created() {
+    if (this.$router.path !== '/home') {
+      this.$router.replace('/home')
+    }
+  },
   methods: {
     handleScroll() {
       if (window.scrollY > 120) {

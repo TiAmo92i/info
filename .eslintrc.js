@@ -16,5 +16,6 @@ module.exports = {
     'no-new': 'off',
     'import/no-extraneous-dependencies': 'off',
     'new-cap': 'off',
+    'no-unused-vars': 'off',
   },
 }
