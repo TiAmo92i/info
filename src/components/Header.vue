@@ -2,8 +2,7 @@
   <div class="header" :class="{ cur: active == true, fix: noMargin == true }">
     <img src="../assets/info.jpg" alt="" @click="goCategory(0)" />
     <div class="text">
-      <h2>TiAmo</h2>
-      <h4>TiAmo的个人小站</h4>
+      <h2>{{ userName }}个人小站</h2>
     </div>
     <transition name="appear">
       <div v-show="active" class="more">
@@ -29,11 +28,13 @@
     <el-alert title="style找不到了" type="error" v-if="error"> </el-alert>
   </div>
 </template>
+
 <script>
 import pubsub from 'pubsub-js'
 
 export default {
   name: 'Header',
+  props: ['userName'],
   data() {
     return {
       active: false,
@@ -96,6 +97,11 @@ export default {
 }
 </script>
 <style scoped lang="less">
+.right {
+  float: right;
+  width: 200px;
+  display: flex;
+}
 img {
   cursor: pointer;
 }

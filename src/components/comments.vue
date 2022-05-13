@@ -2,15 +2,14 @@
   <div class="commentBox">
     <h1>参与评论</h1>
     <div class="commentWrap">
-      <img class="info" src="../assets/info.jpg" alt="" />
-      <el-input placeholder="请发表有价值的评论，博客评论不欢迎灌水，良好的社区氛围需大家一起维护。" class="elInput" v-model="input">
+      <img class="info" src="../assets/info.jpg" alt="" @click="clickAuthor" />
+      <el-input placeholder="请发表有价值的评论，博客评论不欢迎灌水，良好的社区氛围需大家一起维护。" v-model="input">
         <i slot="suffix" class="iconfont icon-biaoqing" @click="emjioBlock"><span class="biaoqing">插入表情</span></i>
         <i slot="suffix" class="iconfont icon-zitidaima"><span class="daima">代码片</span></i>
         <el-button slot="suffix" type="success" size="mini" class="commit" icon="el-icon-check" round plain @click="sendComment">发评论</el-button>
       </el-input>
     </div>
     <div class="emjio" v-show="isEmjio">
-      <!-- <img data-emoticon="[face]emoji:001.png[/face]" src="https://g.csdnimg.cn/static/face/emoji/001.png" alt="" /> -->
       <img
         :src="`https://g.csdnimg.cn/static/face/emoji/00${count}.png`"
         alt=""
@@ -20,16 +19,28 @@
         @click="addEmjio($event)"
       />
       <template v-for="count in 72">
-        <img :src="`https://g.csdnimg.cn/static/face/emoji/0${count}.png`" alt="" v-if="count >= 10" :key="count" />
+        <img
+          :src="`https://g.csdnimg.cn/static/face/emoji/0${count}.png`"
+          alt=""
+          v-if="count >= 10"
+          :key="count"
+          :emoticon="`[face]emoji:0${count}.png[/face]`"
+          @click="addEmjio($event)"
+        />
       </template>
     </div>
-    <div v-for="(comment, index) in comments" :key="index">
+    <div v-for="(comment, index) in commentsWithEmjio" :key="index">
       <hr />
       <div class="one">
-        <img :src="`${img[index % 5]}`" alt="" />
-        <div>
-          <li>{{ Math.floor(Math.random() * 60) }}min前</li>
-          <li>{{ comment.comment }}</li>
+        <img :src="`${img[index % 5]}`" alt="" v-if="comment.id.length > 10" />
+        <img src="../assets/info.jpg" alt="" v-if="comment.id.length < 10" @click="clickAuthor" />
+        <div class="commentContent">
+          <div class="nameAndDate">
+            <li v-show="comment.id.length < 10" class="userName" @click="clickAuthor">{{ comment.id }}</li>
+            <li v-show="comment.id.length > 10" class="visitor" @click="clickAuthor">游客{{ comment.id.slice(-4) }}</li>
+            <li>{{ comment.date }}</li>
+          </div>
+          <li v-html="comment.comment"></li>
         </div>
       </div>
     </div>
@@ -37,7 +48,8 @@
 </template>
 
 <script>
-import { reqGetComment } from '@/api/index'
+import { reqGetComment, reqSendComment } from '@/api/index'
+import pubsub from 'pubsub-js'
 
 export default {
   name: 'comments',
@@ -52,9 +64,11 @@ export default {
         'https://s3.bmp.ovh/imgs/2022/05/07/76eb2d4622bf705b.jpg',
         'https://s3.bmp.ovh/imgs/2022/05/07/a76e5be5be489db2.jpg',
         'https://s3.bmp.ovh/imgs/2022/05/07/47330b129ac3f1f8.jpg',
-        'https://s3.bmp.ovh/imgs/2022/05/07/1bed2f148b8249b0.jpg',
-        'https://s3.bmp.ovh/imgs/2022/05/07/e18b8909314bd9bf.jpg',
+        'https://s3.bmp.ovh/imgs/2022/05/12/33d83d5b25398c8c.jpg',
+        'https://s3.bmp.ovh/imgs/2022/05/12/8fb5952eefc2a87a.jpg',
       ],
+      emjios: [],
+      flag1: false,
     }
   },
   mounted() {
@@ -63,7 +77,10 @@ export default {
   methods: {
     async getData() {
       const result = await reqGetComment(this.id)
-      this.comments = result
+      if (result.code === 200) this.comments = result.data
+      else {
+        console.log(Promise.reject(new Error('faile')))
+      }
     },
     emjioBlock() {
       this.isEmjio = !this.isEmjio
@@ -72,8 +89,37 @@ export default {
       console.log(e.target.attributes.emoticon.nodeValue)
       this.input += e.target.attributes.emoticon.nodeValue
     },
-    sendComment() {
-      this.$store.dispatch('sendComment', { input: this.input, seq: this.id })
+    async sendComment() {
+      const result = await reqSendComment(sessionStorage.getItem('TOKEN'), this.input, this.id)
+      if (result.code === 200) {
+        console.log('评论成功')
+        this.$toast.top('评论成功')
+      } else {
+        this.$toast.top('评论失败')
+      }
+      this.input = ''
+
+      this.getData()
+    },
+    clickAuthor() {
+      pubsub.publish('clickAuthor')
+    },
+  },
+  computed: {
+    commentsWithEmjio() {
+      return this.comments.map((comm) => {
+        const emojioStrings = comm.comment.match(/\[(\w+)\][^\[]+\[\/(\1)\]/g)
+        const URIs = emojioStrings?.map((str) => {
+          const filename = str.replace(/\[(\w+)\]emoji:/, '').replace(/\[\/(\w+)\]/, '')
+          return `<img class="emjioImg" src="https://g.csdnimg.cn/static/face/emoji/${filename}" alt="表情包" />`
+        })
+        emojioStrings?.forEach((emojiStr, index) => {
+          if (URIs) {
+            comm.comment = comm.comment.replace(emojiStr, URIs[index])
+          }
+        })
+        return comm
+      })
     },
   },
 }
@@ -81,14 +127,17 @@ export default {
 
 <style scoped lang="less">
 .commentBox {
-  height: 1000px;
-  background-color: aliceblue;
+  height: 800px;
+  background-color: rgba(240, 248, 255, 0.644);
   overflow: auto;
   border-radius: 10px;
   padding: 10px 0 50px 0;
   // text-align: center;
   h1 {
     margin-left: 20px;
+  }
+  .info {
+    cursor: pointer;
   }
   .commentWrap {
     width: 90%;
@@ -171,11 +220,11 @@ export default {
     }
   }
   .emjio {
-    position: relative;
-    margin-left: 450px;
+    position: absolute;
+    right: 450px;
     width: 328px;
     padding: 8px 0;
-    // z-index: 2000;
+    z-index: 2000;
     background: #fff;
     -webkit-box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
     box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
@@ -185,18 +234,6 @@ export default {
     overflow: auto;
     height: 228px;
     scrollbar-width: thin;
-    &::before {
-      content: '';
-      width: 8px;
-      height: 8px;
-      transform: rotate(45deg);
-      -webkit-transform: rotate(45deg);
-      -moz-transform: rotate(45deg);
-      position: absolute;
-      top: -4px;
-      right: 164px;
-      background: #22222636;
-    }
   }
   img {
     width: 32px;
@@ -214,17 +251,50 @@ export default {
   .one {
     display: flex;
     align-items: center;
-    li {
-      list-style: none;
-      padding-top: 5px;
+    .nameAndDate {
+      display: flex;
+      .userName {
+        background-color: rgba(0, 0, 0, 0.2);
+        width: 60px;
+        border-radius: 8px;
+        text-align: center;
+        height: 20px;
+        line-height: 20px;
+        color: #666;
+        cursor: pointer;
+        margin-right: 8px;
+      }
+      .visitor {
+        width: 70px;
+        border-radius: 8px;
+        text-align: center;
+        height: 20px;
+        line-height: 20px;
+        color: #666;
+        margin-right: 8px;
+      }
+    }
+
+    .commentContent {
+      li {
+        list-style: none;
+        margin-top: 7px;
+        font-size: 16px;
+      }
     }
   }
   .info,
-  .one > img {
+  .one img {
     width: 35px;
     height: 35px;
     border-radius: 50%;
     margin: 0 20px;
   }
+}
+</style>
+<style lang="less">
+.emjioImg {
+  width: 32px;
+  height: 32px;
 }
 </style>

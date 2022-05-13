@@ -93,13 +93,12 @@ export default {
 <style scoped lang="less">
 .twoRow {
   margin: 20px 100px;
-  height: 1500px;
+  height: 100%;
   .list {
     width: 350px;
-    height: 480px;
+    // height: 600px;
     background-color: white;
     border-radius: 8px;
-    margin-right: 20px;
     float: left;
     h3 {
       background-color: rgba(0, 0, 0, 0.2);
@@ -143,7 +142,7 @@ export default {
 .fixList {
   position: fixed;
   top: 100px;
-  height: 480px !important;
+  // height: 480px !important;
   z-index: 999;
   transition: linear;
 }

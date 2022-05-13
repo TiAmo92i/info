@@ -40,7 +40,10 @@ export default {
   methods: {
     async getData() {
       const blog = await reqGetBlog(this.id)
-      this.blogArray = blog
+      if (blog.code === 200) this.blogArray = blog.data
+      else {
+        console.log(Promise.reject(new Error('faile')))
+      }
     },
     clickAuthor() {
       pubsub.publish('clickAuthor')

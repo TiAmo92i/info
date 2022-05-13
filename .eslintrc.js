@@ -17,5 +17,14 @@ module.exports = {
     'import/no-extraneous-dependencies': 'off',
     'new-cap': 'off',
     'no-unused-vars': 'off',
+    'import/no-unresolved': [
+      2,
+      {
+        ignore: ['^@/'], // @ 是设置的路径别名
+      },
+    ],
+    'no-param-reassign': 'off',
+    'no-useless-escape': 'off',
+    'no-else-return': 'off',
   },
 }

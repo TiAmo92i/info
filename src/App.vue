@@ -1,6 +1,11 @@
 <template>
   <div id="app">
-    <Header :class="{ fix: noSee == true }" />
+    <div class="right">
+      <li v-show="isLogin">{{ userName }}</li>
+      <el-link type="success" :underline="false" v-show="!isLogin" @click="$router.push('/login')">登录</el-link>
+      <el-link type="success" :underline="false" v-show="isLogin" @click="loginout">退出登录</el-link>
+    </div>
+    <Header :class="{ fix: noSee == true }" :userName="userName" />
     <keep-alive>
       <router-view class="route" v-if="$route.meta.keepAlive"></router-view>
     </keep-alive>
@@ -22,10 +27,20 @@ export default {
   data() {
     return {
       noSee: false,
+      isLogin: false,
+      userName: '',
     }
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll, true) // 监听（绑定）滚轮滚动事件
+    if (sessionStorage.getItem('USERNAME')) {
+      this.isLogin = true
+      this.userName = sessionStorage.getItem('USERNAME')
+    }
+    pubsub.subscribe('login', () => {
+      this.isLogin = true
+      this.userName = sessionStorage.getItem('USERNAME')
+    })
   },
   created() {
     if (this.$router.path !== '/home') {
@@ -44,6 +59,12 @@ export default {
         pubsub.publish('beShort')
       }
     },
+    loginout() {
+      sessionStorage.removeItem('TOKEN')
+      sessionStorage.removeItem('USERNAME')
+      this.isLogin = false
+      this.userName = ''
+    },
   },
 }
 </script>
@@ -54,6 +75,11 @@ export default {
 }
 body {
   background-color: #f1f1f1;
+  font-family: Calibri;
+  font-size: 16px;
+  li {
+    list-style: none;
+  }
 }
 .modal-page {
   overflow: hidden;
@@ -101,6 +127,20 @@ body {
     margin: 55px 0 0 110px;
     width: 80%;
     border-radius: 8px;
+  }
+}
+</style>
+<style scoped lang="less">
+.right {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100px;
+  display: flex;
+  li {
+    list-style: none;
+    font-size: 16px;
+    color: #666;
   }
 }
 </style>
