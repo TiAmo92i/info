@@ -10,8 +10,9 @@
   "dependencies": {
     "animate.css": "^4.1.1",
     "core-js": "^3.8.3",
-    "element-ui": "^2.15.8",
+    "element-ui": "^2.15.9",
     "hexo-helper-live2d": "^3.1.1",
+    "jquery-form": "^4.3.0",
     "lib-flexible": "^0.3.2",
     "live2d-widget-model-koharu": "^1.0.5",
     "live2d-widget-model-shizuku": "^1.0.5",

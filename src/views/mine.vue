@@ -3,14 +3,25 @@
     <div
       class="grid-item"
       :class="`grid-item${index > 2 ? ((index + 1) % 3 !== 0 ? (index + 1) % 3 : 3) : index + 1}`"
-      v-for="(listOne, index) in list"
+      v-for="(listOne, index) in myList"
       :key="index"
       @click="intoBlog(listOne)"
     >
+      <div class="menu">
+        <el-dropdown :hide-on-click="false" size="small" type="primary" @command="handleCommand">
+          <span class="el-dropdown-link">
+            <i class="icon iconfont icon-checkmore"></i>
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item :command="beforeHandleCommand(listOne, 'delete')">删除</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
       <div class="label">
         <span class="kind" :class="`kind${listOne.num}`">{{ listOne.kind }}</span>
         <span class="date">{{ listOne.date }}</span>
       </div>
+
       <h3>{{ listOne.title }}</h3>
       <div :class="`img${listOne.img.length}`">
         <img :src="imgOne" alt="" v-for="(imgOne, index) in listOne.img" :key="index" />
@@ -29,23 +40,21 @@ import pubsub from 'pubsub-js'
 import Masonry from 'masonry-layout'
 import { mapState } from 'vuex'
 import Blog from '@/components/Blog.vue'
+import { reqDeleteBlog } from '@/api/index'
 
 export default {
-  name: 'Home',
+  name: 'mine',
   components: {
     Blog,
   },
   data() {
     return {
-      id: 0,
+      userName: '',
       block: false,
       key: 0,
     }
   },
   mounted() {
-    this.category = pubsub.subscribe('category', (name, id) => {
-      this.id = id
-    })
     this.clickAuthor = pubsub.subscribe('clickAuthor', () => {
       this.block = false
     })
@@ -58,17 +67,56 @@ export default {
   },
   methods: {
     getData() {
-      this.$store.dispatch('getList', this.id)
+      this.userName = sessionStorage.getItem('USERNAME')
+      this.$store.dispatch('getMyList', this.userName)
     },
     intoBlog(listOne) {
       this.key = listOne.key
       this.block = true
     },
-  },
-  watch: {
-    id() {
+    editBlog(listOne) {
+      pubsub.publish('editBlog', listOne.key)
+      this.$router.push('/editLiuYan')
+    },
+    deleteBlog(listOne) {
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(async () => {
+          const result = await reqDeleteBlog(listOne.key)
+          if (result.code === 200) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!',
+            })
+          }
+          this.getData()
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除',
+          })
+        })
       this.getData()
     },
+    handleCommand(command) {
+      if (command.command === 'delete') {
+        this.deleteBlog(command.listOne)
+      } else if (command.command === 'edit') {
+        this.editBlog(command.listOne)
+      }
+    },
+    beforeHandleCommand(listOne, command) {
+      return {
+        listOne,
+        command,
+      }
+    },
+  },
+  watch: {
     block(newValue) {
       if (newValue) {
         document.querySelector('html')?.classList.add('modal-page')
@@ -78,10 +126,10 @@ export default {
     },
   },
   computed: {
-    ...mapState(['list']),
+    ...mapState(['myList']),
   },
   beforeDestroy() {
-    pubsub.unsubscribe(this.category)
+    pubsub.unsubscribe(this.clickAuthor)
   },
 }
 </script>
@@ -116,8 +164,17 @@ h3 {
     height: 20px;
     line-height: 1.5;
   }
+  .menu {
+    float: right;
+    .icon {
+      font-size: 30px;
+      // font-weight: lighter;
+    }
+  }
 }
-
+.grid-item2 {
+  height: 470px;
+}
 .img4 {
   img {
     &:nth-child(1) {
@@ -171,8 +228,5 @@ h3 {
     height: 400px;
     width: 90%;
   }
-}
-.grid-item2 {
-  height: 470px;
 }
 </style>

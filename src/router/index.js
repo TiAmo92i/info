@@ -8,19 +8,12 @@ const routes = [
     path: '/home',
     component: () => import('@/views/Home.vue'),
     meta: {
-      keepAlive: true,
+      keepAlive: false,
     },
   },
   {
     path: '*',
     redirect: '/home',
-  },
-  {
-    path: '/twoRow',
-    component: () => import('@/views/twoRow.vue'),
-    meta: {
-      keepAlive: false,
-    },
   },
   {
     path: '/login',
@@ -29,10 +22,23 @@ const routes = [
       keepAlive: false,
     },
   },
+  {
+    path: '/add',
+    component: () => import('@/views/add.vue'),
+    meta: {
+      keepAlive: false,
+    },
+  },
+  {
+    path: '/mine',
+    component: () => import('@/views/mine.vue'),
+    meta: {
+      keepAlive: false,
+    },
+  },
 ]
 
 const router = new VueRouter({
-  base: process.env.BASE_URL,
   routes,
 })
 
@@ -43,6 +49,9 @@ router.beforeEach(async (to, from, next) => {
     if (to.path === '/login') {
       next('/')
     }
+  } else if (to.path === '/mine') {
+    next('/login')
   }
 })
+
 export default router

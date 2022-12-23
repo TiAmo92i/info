@@ -15,8 +15,9 @@
             <div @click="goCategory(3)">美食分享</div>
           </div>
         </div>
-        <p @click="goTwoRow">双栏板式</p>
         <p @click="goLogin">登录</p>
+        <p @click="goAdd">添加</p>
+        <p @click="goInfo">个人中心</p>
         <p><i class="iconfont icon-sousuo1"></i></p>
       </div>
     </transition>
@@ -25,12 +26,12 @@
       <li></li>
       <li></li>
     </ul>
-    <el-alert title="style找不到了" type="error" v-if="error"> </el-alert>
   </div>
 </template>
 
 <script>
 import pubsub from 'pubsub-js'
+import 'vue2-toast/lib/toast.css'
 
 export default {
   name: 'Header',
@@ -69,13 +70,28 @@ export default {
       }
       this.category(id)
     },
-    goTwoRow() {
-      if (this.$route.path !== '/twoRow') {
-        this.$router.push('/twoRow')
+    goAdd() {
+      const token = sessionStorage.getItem('TOKEN')
+      if (token) {
+        if (this.$route.path !== '/add') {
+          this.$router.push('/add')
+        }
+      } else {
+        this.$toast.top('未登录，请登录~')
+        this.$router.push('/login')
       }
     },
     goLogin() {
       if (this.$route.path !== '/login') {
+        this.$router.push('/login')
+      }
+    },
+    async goInfo() {
+      const token = sessionStorage.getItem('TOKEN')
+      if (token) {
+        this.$router.push('/mine')
+      } else {
+        this.$toast.top('未登录，请登录~')
         this.$router.push('/login')
       }
     },

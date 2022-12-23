@@ -265,7 +265,7 @@ export default {
         margin-right: 8px;
       }
       .visitor {
-        width: 70px;
+        // width: 70px;
         border-radius: 8px;
         text-align: center;
         height: 20px;

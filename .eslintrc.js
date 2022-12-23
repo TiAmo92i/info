@@ -26,5 +26,9 @@ module.exports = {
     'no-param-reassign': 'off',
     'no-useless-escape': 'off',
     'no-else-return': 'off',
+    'vuejs-accessibility/label-has-for': 'off',
+    'vuejs-accessibility/alt-text': 'off',
+    'no-lonely-if': 'off',
+    'no-underscore-dangle': 'off',
   },
 }

@@ -1,6 +1,7 @@
 import ElementUI from 'element-ui'
 import Vue from 'vue'
 import Toast from 'vue2-toast'
+import jqueryForm from 'jquery-form'
 import App from './App.vue'
 import router from './router'
 import store from './store'
@@ -16,6 +17,9 @@ Vue.use(Toast, {
 Vue.config.productionTip = false
 
 Vue.use(ElementUI)
+Vue.prototype.$confirm = ElementUI.MessageBox.confirm
+
+Vue.use(jqueryForm)
 new Vue({
   router,
   store,
